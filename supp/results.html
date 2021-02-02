@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<title>Deep Online Fused Video Stabilization - Supplementary Material</title>
+		<!--<link href="./css/foundation.css" rel="stylesheet" type="text/css">-->
+		<!--<link href="./css/twentytwenty.css" rel="stylesheet" type="text/css">-->
+		<!-- jQuery -->
+		<script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha256-cCueBR6CsyA4/9szpPfrX3s49M9vUU5BgtiJj06wt/s=" crossorigin="anonymous"></script>
+		<!-- Bootstrap -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+</head>
+
+<body>
+	<div class="container">
+		<div class="row">
+			<div class="col-xs-12 text-center">
+				<br>
+				<h1>Deep Online Fused Video Stabilization</h1>
+				<br>
+			</div>
+		</div>
+		 
+		<br>
+    
+    <div class="row">
+      <div class="col-xs-12 text-left">
+        <div class="well well-sm">
+          <form class="form-inline"> 
+            <div class="form-group">
+              <label for="video-idx-input">Video: <span id="video-idx">01</span> / <span id="video-total">34</span>&nbsp;</label>
+              <span id="video_name" style="display:inline-block; font-weight:bold">: s_101_outdoor_walking_backward_dancing_person_daytime&nbsp;</span>
+              <br>
+              <div class="input-group">
+                <span class="input-group-btn">
+                  <button class="btn btn-info" type="button" onclick="PreviousVideo();"><span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span></button>
+                </span>
+                <input type="range" class="form-control" id="video-idx-input" min="1" max="34" step="1" value="1" oninput="ChangeVideo();">
+                <span class="input-group-btn">
+                  <button class="btn btn-info" type="button" onclick="NextVideo();"><span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span></button>
+                </span>
+              </div>
+            </div>
+          </form>
+          <hr style="margin: 7px;">
+          <ul class="nav nav-pills" id="current-method-ul">
+            <li role="presentation" id="tab0" class="active"><a href="javascript: void(0);" onclick="ChangeMethod(0);">Input vs. Ours</a></li>
+            <li role="presentation" id="tab1" class=""><a href="javascript: void(0);" onclick="ChangeMethod(1);">[Grundmann et al. 2011] vs. Ours</a></li>
+            <li role="presentation" id="tab2" class=""><a href="javascript: void(0);" onclick="ChangeMethod(2);">[Wang et al. 2018] vs. Ours</a></li>
+            <li role="presentation" id="tab3" class=""><a href="javascript: void(0);" onclick="ChangeMethod(3);">[PWStableNet 2020] vs. Ours</a></li>
+            <li role="presentation" id="tab4" class=""><a href="javascript: void(0);" onclick="ChangeMethod(4);">[Yu et al. 2020] vs. Ours</a></li>
+            <li role="presentation" id="tab5" class=""><a href="javascript: void(0);" onclick="ChangeMethod(5);">[Choi et al. 2020] vs. Ours</a></li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="row text-center" style="margin-top: 2em; display: block;" id="output_canvas">
+        <div class="large-12 columns">
+          <video id="output_video" width="90%" loop controls autoplay muted>
+            <source src="videos/s_101_outdoor_walking_backward_dancing_person_daytime/input_ours.mp4" type="video/mp4">
+          </video>
+        </div>
+      </div>
+      
+      <br>
+      <br>
+    </div>
+  </div>
+			
+
+<script src="https://code.jquery.com/jquery-3.2.1.js" integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE=" crossorigin="anonymous"></script>
+<script src="./js/jquery.event.move.js"></script>
+<script src="./js/jquery.twentytwenty.js"></script>
+
+
+<style type="text/css">
+.container {
+	width: 75%;
+  background-color: #FBFBFC;
+}
+.teaser-img {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+.img-responsive {
+  margin: auto;
+}
+.comparison-table {
+  table-layout: fixed;
+    word-wrap: break-word;
+}
+.comparison-table th {
+  text-align: center;
+}
+.disabled{
+    pointer-events:none;
+    opacity:0.7;
+}
+</style>
+
+<script type="text/javascript">
+  var method_list = ["input", "Grundmann2011", "Wang2018", "PWStableNet2020", "Yu2020", "Choi2020"];
+  var current_method_index = 0;
+  var video_names = [
+'s_101_outdoor_walking_backward_dancing_person_daytime',
+'s_101_outdoor_walking_backward_dancing_person_night',
+'s_102_outdoor_walking_backward_moving_person_daytime',
+'s_102_outdoor_walking_backward_moving_person_night',
+'s_103_outdoor_moving_large_object_night',
+'s_103b_outdoor_moving_large_object_daytime',
+'s_103b_outdoor_moving_large_object_night',
+'s_103c_outdoor_moving_large_object_daytime',
+'s_103c_outdoor_moving_large_object_night',
+'s_104_outdoor_moving_fountain_daytime',
+'s_104b_outdoor_moving_fountain_daytime',
+'s_104c_outdoor_moving_fountain_daytime',
+'s_105_outdoor_rotate_around_bush_parallax_night',
+'s_105b_outdoor_rotate_around_bush_parallax_daytime',
+'s_106_outdoor_walking_building_parallax_daytime',
+'s_106b_outdoor_walking_building_parallax_night',
+'s_107_outdoor_walking_roadside_parallax_night',
+'s_107b_outdoor_walking_roadside_parallax_daytime',
+'s_107b_outdoor_walking_roadside_parallax_night',
+'s_107c_outdoor_walking_roadside_parallax_daytime',
+'s_110_indoor_walking_turning_night',
+'s_110b_indoor_walking_turning',
+'s_114_outdoor_running_trail_daytime',
+'s_114b_outdoor_running_trail_daytime',
+'s_114b_outdoor_running_trail_night',
+'s_115b_outdoor_running_upstairs_night',
+'s_115c_outdoor_running_Upstairs_daytime',
+'s_115d_outdoor_running_downstairs_daytime',
+'s_116_outdoor_running_pavilion_daytime',
+'s_116_outdoor_running_pavilion_night',
+'s_117_outdoor_edgecase_hollowobject',
+'s_117_outdoor_edgecase_hollowobject_night',
+'s_118_outdoor_driving_parallax_daytime',
+'s_118b_outdoor_driving_parallax_night'
+  ];
+
+  function ChangeVideo(){
+    var video_idx = parseInt(document.getElementById("video-idx-input").value);
+    document.getElementById("video-idx").innerHTML = video_idx;
+    document.getElementById("video_name").innerHTML = ": " + video_names[video_idx - 1] + "&nbsp;";
+    
+    var video = document.getElementById('output_video');
+    var video_path = "./videos/" + video_names[video_idx - 1] + "/" + method_list[current_method_index] + "_ours.mp4";
+    console.log(video_path);
+    video.src = video_path;
+    video.play();
+  }
+
+  function NextVideo(){
+    var video_idx = parseInt(document.getElementById("video-idx-input").value);
+    if(video_idx < video_names.length){
+      document.getElementById("video-idx-input").value = video_idx + 1;
+      ChangeVideo();
+    }
+    
+  }
+
+  function PreviousVideo(){
+    var video_idx = parseInt(document.getElementById("video-idx-input").value);
+    if(video_idx > 1){
+      document.getElementById("video-idx-input").value = video_idx - 1;
+      ChangeVideo();
+    }
+  }
+
+  function ChangeMethod(idx){
+    var li_list = document.getElementById("current-method-ul").children;
+    for(i = 0; i < li_list.length; i++){
+			li_list[i].className = "";
+		}
+    li_list[idx].className = "active";
+    current_method_index = idx;
+    ChangeVideo();
+  }
+</script>
+
+
+
+
+</body></html>
